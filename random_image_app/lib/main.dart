@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:io';
+import 'package:path/path.dart';
 
 
 Future main() async {
@@ -41,26 +43,33 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _loadImagePaths() async {
-    try {
-      // Get the list of assets in the 'assets/images' directory
-      final manifestContent =
-          await rootBundle.loadString('AssetManifest.json');
-      final Map<String, dynamic> manifest = json.decode(manifestContent);
-      final imagePaths = manifest.keys
-          .where((String key) => key.contains('images/'))
-          .toList();
+    List<String> imagePaths = [];
 
-      setState(() {
-        _imagePaths = imagePaths;
-        _imagePaths.shuffle();
-        _imageIndex = 0;
-      });
-    } catch (e) {
-      print('Error loading image paths: $e');
+    // Specify the path to the directory containing images
+    Directory directory = Directory('/images');
+
+    // List all files in the directory
+    List<FileSystemEntity> files = directory.listSync();
+
+    // Filter out only image files (you can customize the list of supported extensions)
+    List<String> supportedExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+    for (var file in files) {
+      if (file is File && supportedExtensions.contains(file.path.toLowerCase().split('.').last)) {
+        imagePaths.add(file.path);
+      }
     }
+
+    setState(() {
+      _imagePaths = imagePaths;
+      _imagePaths.shuffle();
+      _imageIndex = 0;
+    });
   }
 
   void _loadNextImage() {
+    // Refresh the image list
+    _loadImagePaths();
+    // Load the next image
     setState(() {
       _imageIndex = (_imageIndex + 1) % _imagePaths.length;
     });
