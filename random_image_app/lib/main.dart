@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(MyApp());
@@ -66,27 +67,36 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text('Random Image App'),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Expanded(
-            child: Center(
-              child: Image.asset(
-                _imagePaths[_imageIndex],
-                // width: 300,
-                // height: 300,
-                fit: BoxFit.cover,
+      body: RawKeyboardListener(
+        focusNode: FocusNode(),
+        autofocus: true,
+        onKey: (RawKeyEvent event) {
+          if (event is RawKeyDownEvent) {
+            if (event.logicalKey == LogicalKeyboardKey.space) {
+              _loadNextImage();
+            }
+          }
+        },
+        child: Column(      
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Expanded(
+              child: Center(
+                child: Image.asset(
+                  _imagePaths[_imageIndex],
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              onPressed: _loadNextImage,
-              child: Text('Load Next Image'),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: _loadNextImage,
+                child: Text('Load Next Image'),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
