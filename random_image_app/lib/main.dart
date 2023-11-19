@@ -3,8 +3,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+
+Future main() async {
+  await dotenv.load(fileName: ".env");
   runApp(MyApp());
 }
 
@@ -12,7 +15,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Random Image App',
+      // Use the env variable to set the app title or use a default
+      title: dotenv.get('APP_TITLE', fallback: 'Random Image App'),
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -65,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Random Image App'),
+        title : Text(dotenv.get('APP_TITLE', fallback: 'Random Image App')),
       ),
       body: RawKeyboardListener(
         focusNode: FocusNode(),
