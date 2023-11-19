@@ -36,21 +36,16 @@ RUN ${FLUTTER_HOME}/bin/flutter --version && \
     ${FLUTTER_HOME}/bin/flutter pub global activate dartdoc
 
 
-# Copy app to /app
-# Start to run Flutter commands
 # doctor to see if all was installes ok
 RUN flutter doctor -v
 RUN flutter channel master
 RUN flutter upgrade
 
-# # copy source code to folder
+# Copy app to /app
 COPY random_image_app /app
-# stup new folder as the working directory
 WORKDIR /app
-# Run build: 1 - clean, 2 - pub get, 3 - build web
+RUN flutter config --enable-web
 RUN flutter clean
 RUN flutter pub get
-RUN flutter build web
-
-FROM nginx:1.21.1-alpine 
-COPY --from=base /app/build/web /usr/share/nginx/html
+# Set Entrypoint
+ENTRYPOINT ["flutter", "run", "--release", "-d", "web-server", "--web-port", "8080", "--web-hostname", "0.0.0.0"]

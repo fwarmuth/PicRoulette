@@ -1,19 +1,18 @@
-import 'dart:math';
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:convert';
 import 'dart:io';
-import 'package:path/path.dart';
 
 
 Future main() async {
   await dotenv.load(fileName: ".env");
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,12 +21,14 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -43,32 +44,32 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _loadImagePaths() async {
-    List<String> imagePaths = [];
+    try {
+      // Get the list of assets in the 'assets/images' directory
+      final manifestContent =
+          await rootBundle.loadString('AssetManifest.json');
+      final Map<String, dynamic> manifest = json.decode(manifestContent);
+      final imagePaths = manifest.keys
+          .where((String key) => key.contains('images/'))
+          .toList();
 
-    // Specify the path to the directory containing images
-    Directory directory = Directory('/images');
-
-    // List all files in the directory
-    List<FileSystemEntity> files = directory.listSync();
-
-    // Filter out only image files (you can customize the list of supported extensions)
-    List<String> supportedExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
-    for (var file in files) {
-      if (file is File && supportedExtensions.contains(file.path.toLowerCase().split('.').last)) {
-        imagePaths.add(file.path);
-      }
+      setState(() {
+        _imagePaths = imagePaths;
+        _imagePaths.shuffle();
+        _imageIndex = 0;
+      });
+    } catch (e) {
+      print('Error loading image paths: $e');
     }
-
-    setState(() {
-      _imagePaths = imagePaths;
-      _imagePaths.shuffle();
-      _imageIndex = 0;
-    });
   }
 
   void _loadNextImage() {
+    // Log to console
+    debugPrint('Loading next image');
     // Refresh the image list
     _loadImagePaths();
+    debugPrint('Loaded ${_imagePaths.length} images');
+
     // Load the next image
     setState(() {
       _imageIndex = (_imageIndex + 1) % _imagePaths.length;
@@ -105,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: _loadNextImage,
-                child: Text('Load Next Image'),
+                child: const Text('Load Next Image'),
               ),
             ),
           ],
