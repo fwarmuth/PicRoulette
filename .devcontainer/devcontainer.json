@@ -1,6 +1,7 @@
 {
 	"name": "Flutter dev",
     "build": {
-        "dockerfile": "Dockerfile"
+        "dockerfile": "Dockerfile",
+        "target": "base"
     }
 }

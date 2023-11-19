@@ -1,5 +1,5 @@
 # Use an official Ubuntu runtime as a parent image
-FROM ubuntu:22.04
+FROM ubuntu:22.04 AS base
 
 # Set environment variables for Flutter
 ENV FLUTTER_HOME=/flutter \
@@ -12,7 +12,8 @@ RUN apt-get update && \
     apt-get install -y \
       curl \
       unzip \
-      git
+      git \
+      apt-transport-https
 
 # Download and install Flutter
 RUN git clone https://github.com/flutter/flutter.git ${FLUTTER_HOME} && \
@@ -28,3 +29,22 @@ RUN ${FLUTTER_HOME}/bin/flutter --version && \
     ${FLUTTER_HOME}/bin/flutter precache && \
     ${FLUTTER_HOME}/bin/flutter pub global activate dartdoc
 
+
+# Copy app to /app
+# Start to run Flutter commands
+# doctor to see if all was installes ok
+RUN flutter doctor -v
+RUN flutter channel master
+RUN flutter upgrade
+
+# copy source code to folder
+COPY random_image_app /app
+# stup new folder as the working directory
+WORKDIR /app
+# Run build: 1 - clean, 2 - pub get, 3 - build web
+RUN flutter clean
+RUN flutter pub get
+RUN flutter build web
+
+FROM nginx:1.21.1-alpine
+COPY --from=base /app/build/web /usr/share/nginx/html
