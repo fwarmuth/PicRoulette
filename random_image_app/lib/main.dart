@@ -96,9 +96,19 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Expanded(
               child: Center(
-                child: Image.asset(
-                  _imagePaths[_imageIndex],
-                  fit: BoxFit.cover,
+                child: GestureDetector(
+                  onTap: _loadNextImage,
+                  onDoubleTap: _loadNextImage,
+                  onLongPress: _loadNextImage,
+                  onPanUpdate: (details) {
+                    if (details.delta.dx > 0) {
+                      _loadNextImage();
+                    }
+                  },
+                  child: Image.asset( 
+                    _imagePaths[_imageIndex],
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
