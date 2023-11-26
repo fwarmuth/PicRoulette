@@ -2,6 +2,11 @@
 	"name": "Flutter dev",
     "build": {
         "dockerfile": "Dockerfile",
-        "target": "base"
+        "target": "base",
+        "context": "..",
+        "runArgs": [
+            // Mount the host machine's /dev/kvm to /dev/kvm in the container
+            "--network", "host",
+        ]
     }
 }
